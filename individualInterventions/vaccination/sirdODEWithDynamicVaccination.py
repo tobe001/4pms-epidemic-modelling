@@ -10,11 +10,11 @@ mu = -np.log(1 - 0.1)
 n = 7
 etaA = 2/3
 etaB = 2/3
-tauA = 2/3
-tauB = 2/3
+tauA = 1/2
+tauB = 5/6
 
 maxT = 80
-vs = np.linspace(0, 500, 501)
+vs = np.linspace(0, 500, 51)
 
 #Calculate beta parameters
 betaAA = etaA * tauA * n

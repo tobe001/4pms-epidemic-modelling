@@ -129,10 +129,16 @@ def formNetwork(population, method):
 #Define a function to return a list of inidces of individuals in a population from a given subset sorted by one of several measures
 def sortedSubsetofPopulation(population, subset, measure):
 
+    
     if (len(subset) > 0):
         sortedSubset = [subset[0]]
     else:
         return []
+    '''
+    #QUICKSORT INSTEAD OF INSTERTION?
+    if (len(subset) == 0):
+        return []
+    '''
     
     #Sort individuals randomly
     if (measure == "random"):
@@ -161,7 +167,24 @@ def sortedSubsetofPopulation(population, subset, measure):
                 #If the end of the list has been reached and the current individual has not been inserted, add them to the end of the list
                 if (j == (len(sortedSubset) - 1)):
                     sortedSubset.append(label)
-
+        '''
+        #QUICKSORT INSTEAD OF INSERTION?
+        lowerSubset = []
+        higherSubset = []
+        pivotLabel = subset[0]
+        pivotIndividual = population[pivotLabel]
+        pivotDegree = len(pivotIndividual.neighbours)
+        for index in range(1, len(subset)):
+            label = subset[index]
+            currentIndividual = population[label]
+            currentDegree = len(currentIndividual.neighbours)
+            if (currentDegree < pivotDegree):
+                lowerSubset.append(label)
+            else:
+                higherSubset.append(label)
+        return sortedSubsetofPopulation(population, lowerSubset, "degree") + [pivotLabel] + sortedSubsetofPopulation(population, higherSubset, "degree")
+        '''
+        
     #Sort individuals by susceptibility
     elif (measure == "susceptibility"):
         #For each individual in the subset:
@@ -226,7 +249,7 @@ subsetSize = N
 maxT = 40
 numSims = 100
 
-vs = np.linspace(0, 990, 100)
+vs = np.linspace(0, 300, 31)
 
 #Set random seeds for reproducability
 np.random.seed(1)
@@ -238,11 +261,11 @@ for i in range(0, N):
     rand = np.random.uniform(0, 1)
     if (rand <= 0.5):
         group = "A"
-        sus = np.random.beta(4, 2)
+        sus = np.random.beta(6, 6)
         inf = np.random.beta(4, 2)
     else:
         group = "B"
-        sus = np.random.beta(4, 2)
+        sus = np.random.beta(10, 2)
         inf = np.random.beta(4, 2)
     population.append(Individual([], "Uninitialised", group, sus, inf))
 population = formNetwork(population, "small-world")
@@ -331,13 +354,13 @@ for v in vs:
             #Generate random subset of individuals that can be vaccinated
             potentialVaccineTakers = random.sample(range(0, N), subsetSize)
             #Sort individuals in subset by chosen measure of importance
-            sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, potentialVaccineTakers, "group")
+            sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, [label for label in potentialVaccineTakers if population[label].state == "S"], "susceptibility")
 
             #Vaccinate v most important susceptible individuals from the subset of potential vaccine takers
             vaccinesAvailable = v
             index = 0
             #While we have not yet used all the vaccines and we have not yet considered all individuals in the subset of potential takers:
-            while ((vaccinesAvailable > 0) and (index < subsetSize)):
+            while ((vaccinesAvailable > 0) and (index < len(sortedPotentialVaccineTakers))):
                 #Consider next individual in the sorted subset
                 currentIndividual = population[sortedPotentialVaccineTakers[index]]
                 #If current individual is susceptible, vaccinate them (make them recovered and reduce the number of available vaccines by one)
@@ -378,7 +401,7 @@ plt.figure()
 #Plot average final fatality numbers against v
 plt.plot(vs, averageFinalDs, 'k-', linewidth = 2.5)
 plt.fill_between(vs, averageFinalDs - stdDevFinalDs, averageFinalDs + stdDevFinalDs, color = 'blue', alpha = 0.3)
-plt.xlim([0, 1000])
+plt.xlim([0, 300])
 plt.ylim([0, 300])
 plt.xlabel(r'$\tilde{v}$')
 plt.ylabel('Final number of deceased individuals')
