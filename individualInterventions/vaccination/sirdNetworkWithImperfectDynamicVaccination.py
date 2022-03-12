@@ -134,11 +134,6 @@ def sortedSubsetofPopulation(population, subset, measure):
         sortedSubset = [subset[0]]
     else:
         return []
-    '''
-    #QUICKSORT INSTEAD OF INSTERTION?
-    if (len(subset) == 0):
-        return []
-    '''
     
     #Sort individuals randomly
     if (measure == "random"):
@@ -167,23 +162,6 @@ def sortedSubsetofPopulation(population, subset, measure):
                 #If the end of the list has been reached and the current individual has not been inserted, add them to the end of the list
                 if (j == (len(sortedSubset) - 1)):
                     sortedSubset.append(label)
-        '''
-        #QUICKSORT INSTEAD OF INSERTION?
-        lowerSubset = []
-        higherSubset = []
-        pivotLabel = subset[0]
-        pivotIndividual = population[pivotLabel]
-        pivotDegree = len(pivotIndividual.neighbours)
-        for index in range(1, len(subset)):
-            label = subset[index]
-            currentIndividual = population[label]
-            currentDegree = len(currentIndividual.neighbours)
-            if (currentDegree < pivotDegree):
-                lowerSubset.append(label)
-            else:
-                higherSubset.append(label)
-        return sortedSubsetofPopulation(population, lowerSubset, "degree") + [pivotLabel] + sortedSubsetofPopulation(population, higherSubset, "degree")
-        '''
         
     #Sort individuals by susceptibility
     elif (measure == "susceptibility"):
@@ -261,11 +239,11 @@ for i in range(0, N):
     rand = np.random.uniform(0, 1)
     if (rand <= 0.5):
         group = "A"
-        sus = np.random.beta(6, 6)
+        sus = np.random.beta(4, 2)
         inf = np.random.beta(4, 2)
     else:
         group = "B"
-        sus = np.random.beta(10, 2)
+        sus = np.random.beta(4, 2)
         inf = np.random.beta(4, 2)
     population.append(Individual([], "Uninitialised", group, sus, inf))
 population = formNetwork(population, "small-world")
@@ -353,8 +331,8 @@ for v in vs:
 
             #Generate random subset of individuals that can be vaccinated
             potentialVaccineTakers = random.sample(range(0, N), subsetSize)
-            #Sort individuals in subset by chosen measure of importance
-            sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, [label for label in potentialVaccineTakers if population[label].state == "S"], "susceptibility")
+            #Sort individuals in subset that are susceptible by chosen measure of importance
+            sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, [label for label in potentialVaccineTakers if population[label].state == "S"], "random")
 
             #Vaccinate v most important susceptible individuals from the subset of potential vaccine takers
             vaccinesAvailable = v
@@ -363,10 +341,9 @@ for v in vs:
             while ((vaccinesAvailable > 0) and (index < len(sortedPotentialVaccineTakers))):
                 #Consider next individual in the sorted subset
                 currentIndividual = population[sortedPotentialVaccineTakers[index]]
-                #If current individual is susceptible, vaccinate them (make them recovered and reduce the number of available vaccines by one)
-                if (currentIndividual.state == "S"):
-                    currentIndividual.state = "R"
-                    vaccinesAvailable -= 1
+                #Vaccinate current individual (make them recovered and reduce the number of available vaccines by one)
+                currentIndividual.state = "R"
+                vaccinesAvailable -= 1
                 index += 1
             
             #Count number of dead
