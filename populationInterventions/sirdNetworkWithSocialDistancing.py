@@ -14,35 +14,20 @@ class Individual:
 #Define a function to form a network from a given list of individuals by one of several methods
 def formNetwork(population, method):
 
-    #Form a rectangular lattice
-    if (method == "rectangular-lattice"):
-        ncol = 50 #Change as parameter
-        #For each pair of individuals i and j such that j > i (consider them placed in a rectangular grid from left to right, then top to bottom):
-        for i in range(0, len(population)):
-            for j in range(i + 1, len(population)):
-                #If j is 1 ahead of i and i is not on the end of a row, link i and j
-                if (((i % ncol) != (ncol - 1)) and ((j - i) == 1)):
-                    (population[i].neighbours).append(population[j])
-                    (population[j].neighbours).append(population[i])
-                #If j is one row ahead of i, link i and j
-                if ((j - i) == ncol):
-                    (population[i].neighbours).append(population[j])
-                    (population[j].neighbours).append(population[i])
-
     #Form a ring lattice
-    elif (method == "ring-lattice"):
-        k = 5 #Change as parameter
+    if (method == "ring-lattice"):
+        k = 5 #Parameter of method
         #For each individual i (consider them placed in a ring):
         for i in range(0, len(population)):
             #Connect i to the k following individuals, looping around to individual 0 when i is near the end of the population
-            for j in range(1, k+1):
-                (population[i].neighbours).append(population[(i+j) % len(population)])
-                (population[(i+j) % len(population)].neighbours).append(population[i])
+            for j in range(1, k + 1):
+                (population[i].neighbours).append(population[(i + j) % len(population)])
+                (population[(i + j) % len(population)].neighbours).append(population[i])
 
-    #Form a network with random connections
-    elif (method == "random"):
-        p = 0.01 #Change as parameter
-        #For each pair of individuals i and j such that j > i:
+    #Form a binomial random network
+    elif (method == "binomial"):
+        p = 0.01 #Parameter of method
+        #For each pair of individuals i and j such that j > i (this ensures that each pair is considered only once):
         for i in range(0, len(population)):
             for j in range(i + 1, len(population)):
                 #Link i and j with probability p
@@ -53,31 +38,31 @@ def formNetwork(population, method):
 
     #Form a small-world network
     elif (method == "small-world"):
-        k = 5 #Change as parameter
-        p = 0.1 # Change as parameter
+        k = 5 #Parameter of method
+        p = 0.1 #Parameter of method
         #For each individual i (consider them placed in a ring):
         for i in range(0, len(population)):
-            #Form a list of length k determining which of the edges to the k individuals following i will be rewired
+            #Form a booleam list of length k which will determine which of the edges to the k individuals following i will be rewired
             rewire = np.zeros(k)
             for j in range(0, k):
-                #Rewire each edge with probability p
+                #Mark each edge for rewiring with probability p
                 rand = np.random.uniform(0, 1)
                 if (rand <= p):
                     rewire[j] = True
                 else:
                     rewire[j] = False
             #For j such that we do not rewire the edge from i to the jth individual ahead of it:
-            for j in range(1, k+1):
-                if not(rewire[j-1]):
+            for j in range(1, k + 1):
+                if not(rewire[j - 1]):
                     #Link i to the jth individual ahead of it, looping around to indivdual 0 when i is near the end of the population
-                    (population[i].neighbours).append(population[(i+j) % len(population)])
-                    (population[(i+j) % len(population)].neighbours).append(population[i])
+                    (population[i].neighbours).append(population[(i + j) % len(population)])
+                    (population[(i + j) % len(population)].neighbours).append(population[i])
             #For j such that we do rewire the edge from i to the jth individual ahead of it:
             for j in range(1, k+1):
-                if rewire[j-1]:
+                if rewire[j - 1]:
                     #Choose an individual uniformlly at random, such that the chosen individual is not i or the jth individual ahead of i, and is not already linked to i
                     chosen = np.random.randint(0, len(population))
-                    while ((chosen == i) or (chosen == ((i+j) % len(population))) or (population[chosen] in population[i].neighbours)):
+                    while ((chosen == i) or (chosen == ((i + j) % len(population))) or (population[chosen] in population[i].neighbours)):
                         chosen = np.random.randint(0, len(population))
                     #Link i and the chosen individual
                     (population[i].neighbours).append(population[chosen])
@@ -85,8 +70,8 @@ def formNetwork(population, method):
 
     #Form a scale-free network
     elif (method == "scale-free"):
-        m = 5 #Change as parameter
-        #Form fully connected network of the first m individuals
+        m = 5 #Parameter of method
+        #Form fully connected network from the first m individuals
         for i in range(0, m):
             for j in range(i+1, m):
                 (population[i].neighbours).append(population[j])
@@ -96,14 +81,14 @@ def formNetwork(population, method):
             degrees = np.zeros(i)
             probs = np.zeros(i)
             cumProbs = np.zeros(i)
-            #Calculate degrees of each individual currently in the network and the sum of all degrees
+            #Calculate degree of each individual currently in the network and the sum of all degrees
             for j in range(0, i):
                 degrees[j] = len(population[j].neighbours)
             degSum = sum(degrees)
             #Calculate the probability of individual i connecting to each individual based on the formula in the BA model, and the cumulative probabilities
             for j in range(0, i):
                 probs[j] = degrees[j]/degSum
-                cumProbs[j] = sum(probs[0:j+1])
+                cumProbs[j] = sum(probs[0 : j + 1])
             #Select the m existing individuals to which individual i will initially connect
             newNeighbours = []
             for k in range(0, m):
@@ -123,9 +108,9 @@ def formNetwork(population, method):
                 (population[i].neighbours).append(population[newNeighbours[k]])
                 (population[newNeighbours[k]].neighbours).append(population[i])
     
-    return population            
+    return population  
 
-#Define parameters
+#Set parameters
 N = 1000
 I0 = 1
 R0 = 0
@@ -258,11 +243,11 @@ finalDsSD = np.zeros(len(ps))
 for k in range(0, len(ps)):
     finalDsAverage[k] = np.mean([listofListsofDs[k][n][maxT] for n in range(0, numSims)])
     finalDsSD[k] = np.std([listofListsofDs[k][n][maxT] for n in range(0, numSims)])
-plt.title('Change in final fatality numbers with contact proability p')
 plt.plot(ps, finalDsAverage, 'k-', linewidth = 2.5)
 plt.fill_between(ps, finalDsAverage - finalDsSD, finalDsAverage + finalDsSD, color = 'blue', alpha = 0.3)
 plt.xlabel('p')
-plt.ylabel('Average final number of deceased individuals')
+plt.ylabel('Final number of deceased individuals')
+plt.xlim([0, 1])
 plt.ylim([0, 300])
 
 plt.show()

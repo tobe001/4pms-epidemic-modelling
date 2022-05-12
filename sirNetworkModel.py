@@ -1,45 +1,30 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Create class for individuals to store their list of neighbours and current state
+#Create a class for individuals to store their list of neighbours and current state
 class Individual:
 
     def __init__(self, neighbours, state):
         self.neighbours = neighbours
         self.state = state
 
-#Define function to form network from a given list of individuals by one of several methods
+#Define a function to form a network from a given list of individuals by one of several methods by adding to each individual's list of neighbours (which, when this function is called, should be initially empty)
 def formNetwork(population, method):
 
-    #Form a rectangular lattice
-    if (method == "rectangular-lattice"):
-        ncol = 50 #Change as parameter
-        #For each pair of individuals i and j such that j > i (consider them placed in a rectangular grid from left to right, then top to bottom):
-        for i in range(0, len(population)):
-            for j in range(i + 1, len(population)):
-                #If j is 1 ahead of i and i is not on the end of a row, link i and j
-                if (((i % ncol) != (ncol - 1)) and ((j - i) == 1)):
-                    (population[i].neighbours).append(population[j])
-                    (population[j].neighbours).append(population[i])
-                #If j is one row ahead of i, link i and j
-                if ((j - i) == ncol):
-                    (population[i].neighbours).append(population[j])
-                    (population[j].neighbours).append(population[i])
-
     #Form a ring lattice
-    elif (method == "ring-lattice"):
-        k = 5 #Change as parameter
+    if (method == "ring-lattice"):
+        k = 5 #Parameter of method
         #For each individual i (consider them placed in a ring):
         for i in range(0, len(population)):
             #Connect i to the k following individuals, looping around to individual 0 when i is near the end of the population
-            for j in range(1, k+1):
-                (population[i].neighbours).append(population[(i+j) % len(population)])
-                (population[(i+j) % len(population)].neighbours).append(population[i])
+            for j in range(1, k + 1):
+                (population[i].neighbours).append(population[(i + j) % len(population)])
+                (population[(i + j) % len(population)].neighbours).append(population[i])
 
-    #Form a network with random connections
-    elif (method == "random"):
-        p = 0.01 #Change as parameter
-        #For each pair of individuals i and j such that j > i:
+    #Form a binomial random network
+    elif (method == "binomial"):
+        p = 0.01 #Parameter of method
+        #For each pair of individuals i and j such that j > i (this ensures that each pair is considered only once):
         for i in range(0, len(population)):
             for j in range(i + 1, len(population)):
                 #Link i and j with probability p
@@ -50,31 +35,31 @@ def formNetwork(population, method):
 
     #Form a small-world network
     elif (method == "small-world"):
-        k = 5 #Change as parameter
-        p = 0.1 # Change as parameter
+        k = 5 #Parameter of method
+        p = 0.1 #Parameter of method
         #For each individual i (consider them placed in a ring):
         for i in range(0, len(population)):
-            #Form a list of length k determining which of the edges to the k individuals following i will be rewired
+            #Form a booleam list of length k which will determine which of the edges to the k individuals following i will be rewired
             rewire = np.zeros(k)
             for j in range(0, k):
-                #Rewire each edge with probability p
+                #Mark each edge for rewiring with probability p
                 rand = np.random.uniform(0, 1)
                 if (rand <= p):
                     rewire[j] = True
                 else:
                     rewire[j] = False
             #For j such that we do not rewire the edge from i to the jth individual ahead of it:
-            for j in range(1, k+1):
-                if not(rewire[j-1]):
+            for j in range(1, k + 1):
+                if not(rewire[j - 1]):
                     #Link i to the jth individual ahead of it, looping around to indivdual 0 when i is near the end of the population
-                    (population[i].neighbours).append(population[(i+j) % len(population)])
-                    (population[(i+j) % len(population)].neighbours).append(population[i])
+                    (population[i].neighbours).append(population[(i + j) % len(population)])
+                    (population[(i + j) % len(population)].neighbours).append(population[i])
             #For j such that we do rewire the edge from i to the jth individual ahead of it:
             for j in range(1, k+1):
-                if rewire[j-1]:
+                if rewire[j - 1]:
                     #Choose an individual uniformlly at random, such that the chosen individual is not i or the jth individual ahead of i, and is not already linked to i
                     chosen = np.random.randint(0, len(population))
-                    while ((chosen == i) or (chosen == ((i+j) % len(population))) or (population[chosen] in population[i].neighbours)):
+                    while ((chosen == i) or (chosen == ((i + j) % len(population))) or (population[chosen] in population[i].neighbours)):
                         chosen = np.random.randint(0, len(population))
                     #Link i and the chosen individual
                     (population[i].neighbours).append(population[chosen])
@@ -82,8 +67,8 @@ def formNetwork(population, method):
 
     #Form a scale-free network
     elif (method == "scale-free"):
-        m = 5 #Change as parameter
-        #Form fully connected network of the first m individuals
+        m = 5 #Parameter of method
+        #Form fully connected network from the first m individuals
         for i in range(0, m):
             for j in range(i+1, m):
                 (population[i].neighbours).append(population[j])
@@ -93,14 +78,14 @@ def formNetwork(population, method):
             degrees = np.zeros(i)
             probs = np.zeros(i)
             cumProbs = np.zeros(i)
-            #Calculate degrees of each individual currently in the network and the sum of all degrees
+            #Calculate degree of each individual currently in the network and the sum of all degrees
             for j in range(0, i):
                 degrees[j] = len(population[j].neighbours)
             degSum = sum(degrees)
             #Calculate the probability of individual i connecting to each individual based on the formula in the BA model, and the cumulative probabilities
             for j in range(0, i):
                 probs[j] = degrees[j]/degSum
-                cumProbs[j] = sum(probs[0:j+1])
+                cumProbs[j] = sum(probs[0 : j + 1])
             #Select the m existing individuals to which individual i will initially connect
             newNeighbours = []
             for k in range(0, m):
@@ -122,7 +107,7 @@ def formNetwork(population, method):
     
     return population              
 
-#Define parameters
+#Set parameters
 N = 1000
 I0 = 1
 R0 = 0
@@ -138,32 +123,32 @@ np.random.seed(1)
 population = []
 for i in range(0, N):
     population.append(Individual([], "Uninitialised"))
-population = formNetwork(population, "random")
+population = formNetwork(population, "scale-free")
 
-#Initialise lists to hold infectious numbers for all runs
+#Initialise 2D list to hold number of infectious individuals at each time step for all runs
 listofIs = []
 
 #Run simulation multiple times
 for n in range(0, numSims):
     
-    #Initialise infectious numbers for this run
+    #Initialise infection numbers for this run
     I = np.zeros(maxT + 1)
     I[0] = I0
 
-    #Initialise individual states
+    #Initialise the state of each individual
     #Make the first S0 individuals susceptible
-    for i in range(0, N-I0-R0):
+    for i in range(0,  N - I0 - R0):
         population[i].state = "S"
     #Make the next I0 individuals infectious
-    for i in range(N-I0-R0, N-R0):
+    for i in range(N - I0 - R0, N - R0):
         population[i].state = "I"
     #Make the next R0 individuals recovered
-    for i in range(N-R0, N):
+    for i in range(N - R0, N):
         population[i].state = "R"
     
     #Run simulation
     for t in range(1, maxT + 1):
-        #Create list to store states of individuals for next time step
+        #Create list to store states of individuals for the next time step
         nextStates = [""] * N
         #For each individual:
         for i in range(0, N):
@@ -175,7 +160,7 @@ for n in range(0, numSims):
                 #For each neighbour of the current individual:
                 for j in range(0, len(currentIndividual.neighbours)):
                     currentNeighbour = (currentIndividual.neighbours)[j]
-                    #If neighbour is infectious, current individual is infected with probability p
+                    #If neighbour is infectious, the current individual is infected with probability p
                     if (currentNeighbour.state == "I"):
                         rand = np.random.uniform(0, 1)
                         if (rand <= p):
@@ -209,14 +194,13 @@ for n in range(0, numSims):
                 infectiousCount += 1
         I[t] = infectiousCount
 
-    #Add infectious numbers for this run to list
+    #Add infection numbers for this run to list
     listofIs.append(I)
     print("Completed simulation " + str(n))
 
 #Plot infectious numbers over time for all runs
 plt.rcParams.update({'font.size': 14})
 plt.figure()
-#plt.suptitle('Number of infectious individuals over time in SIR ? network model')
 
 for n in range(0, numSims):
     plt.plot(np.linspace(0, maxT, maxT + 1), listofIs[n], 'r-')

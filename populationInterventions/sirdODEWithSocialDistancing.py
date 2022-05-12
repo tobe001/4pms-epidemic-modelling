@@ -28,11 +28,24 @@ for n in ns:
 
     #Set up equations (where X = [SA, SB, IA, IB, R, D])
     def dX_dt(X, t):
-        return [-betaAA*X[2]*X[0]/N - betaBA*X[3]*X[0]/N, -betaAB*X[2]*X[1]/N - betaBB*X[3]*X[1]/N, betaAA*X[2]*X[0]/N + betaBA*X[3]*X[0]/N - gamma*X[2] - mu*X[2], betaAB*X[2]*X[1]/N + betaBB*X[3]*X[1]/N - gamma*X[3] - mu*X[3], gamma*X[2] + gamma*X[3], mu*X[2] + mu*X[3]]
+        return [-betaAA*X[2]*X[0]/N - betaBA*X[3]*X[0]/N,
+                -betaAB*X[2]*X[1]/N - betaBB*X[3]*X[1]/N,
+                betaAA*X[2]*X[0]/N + betaBA*X[3]*X[0]/N - gamma*X[2] - mu*X[2],
+                betaAB*X[2]*X[1]/N + betaBB*X[3]*X[1]/N - gamma*X[3] - mu*X[3],
+                gamma*X[2] + gamma*X[3],
+                mu*X[2] + mu*X[3]]
 
-    #Solve equations over specified time scale and with specified initial conditions
+    #Set up initial conditions
+    SA0 = (N - I0)/2
+    SB0 = (N - I0)/2
+    IA0 = I0/2
+    IB0 = I0/2
+    R0 = 0
+    D0 = 0
+    X0 = [SA0, SB0, IA0, IB0, R0, D0]
+
+    #Solve equations over specific time range and with specified initial conditions
     plotT = range(0, maxT + 1)
-    X0 = [(N - I0)/2, (N - I0)/2, I0/2, I0/2, 0, 0]
     sol = odeint(dX_dt, X0, plotT)
     S = sol[:,0] + sol[:,1]
     I = sol[:,2] + sol[:,3]
@@ -49,11 +62,11 @@ for n in ns:
 #Plot results
 plt.rcParams.update({'font.size': 14})
 plt.figure()
-plt.title('Change in Final Fatality Numbers with n in SIRD ODE model')
 #Plot final fatality numbers against n
 plt.plot(ns, finalDs, 'k-', linewidth = 2.5)
 plt.xlabel('n')
 plt.ylabel('Final number of deceased individuals')
+plt.xlim([0, 10])
 plt.ylim([0, 300])
 
 plt.show()

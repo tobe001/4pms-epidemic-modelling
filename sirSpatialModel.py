@@ -13,7 +13,7 @@ class Individual:
 def dist(i1, i2):
     return np.sqrt(pow(i1.x - i2.x, 2) + pow(i1.y - i2.y, 2))
 
-#Define parameters
+#Set parameters
 N = 1000
 I0 = 1
 R0 = 0
@@ -33,12 +33,12 @@ np.random.seed(1)
 #Initialise individuals
 population = []
 for i in range(0, N):
-    #Draw x and y coordinates from normal distribution
+    #Draw x and y coordinates from normal distributions
     x = np.random.normal(0, 10)
     y = np.random.normal(0, 10)
     population.append(Individual(x, y, "Unitialised"))
 
-#Initialise lists to hold susceptible, infectious and recovered numbers for all runs
+#Initialise 2D lists to hold numbers of susceptible, infectious and recovered individuals for all runs
 listofSs = []
 listofIs = []
 listofRs = []
@@ -54,21 +54,22 @@ for n in range(0, numSims):
     R[0] = R0
     S[0] = N - I0 - R0
 
-    #Initialise the states of individuals
+    #Initialise the states of the individuals
     #Make the first S0 susceptible
-    for i in range(0, N-I0-R0):
+    for i in range(0, N - I0 - R0):
         population[i].state = "S"
     #Make the next I0 infectious
-    for i in range(N-I0-R0, N-R0):
+    for i in range(N - I0 - R0, N - R0):
         population[i].state = "I"
-    #Make the nest R0 recovered
-    for i in range(N-R0, N):
+    #Make the next R0 recovered
+    for i in range(N - R0, N):
         population[i].state = "R"
     
     #Run simulation
     for t in range(1, maxT + 1):
         #Create list to hold states for next time step
         nextStates = [""] * N
+        
         #For each individual:
         for i in range(0, N):
             currentIndividual = population[i]
@@ -86,7 +87,7 @@ for n in range(0, numSims):
                         rand = np.random.uniform(0, 1)
                         if (rand <= contactProb):
                             infected = True
-                            #If current individual is infected once, no need to check if they are infected by any other individuals
+                            #If current individual is infected once, there is no need to check if they are infected by any other individuals
                             break
                 if infected:
                     nextStates[i] = "I"
@@ -107,7 +108,7 @@ for n in range(0, numSims):
                 #Always remain recovered
                 nextStates[i] = "R"
 
-        #Update states and count number of susceptible, infectious and recovered
+        #Update states and count number of susceptible, infectious and recovered individuals
         susceptibleCount = 0
         infectiousCount = 0
         recoveredCount = 0
@@ -129,12 +130,12 @@ for n in range(0, numSims):
     listofRs.append(R)
     print("Completed simulation " + str(n))
 
-#Plot susceptible, infectious and recovered numbers over time for all runs
+#Plot susceptible, infectious and recovered numbers over time for all runs, plus the positions of the individuals
 plt.rcParams.update({'font.size': 14})
 plt.figure()
-plt.suptitle('Number of susceptible, infectious and recovered individuals over time in SIR spatial model')
+
 #Plot susceptible numbers
-plt.subplot(1, 3, 1)
+plt.subplot(2, 2, 1)
 for n in range(0, numSims):
     plt.plot(np.linspace(0, maxT, maxT + 1), listofSs[n], 'c-')
 #Calculate and plot mean susceptible numbers
@@ -147,7 +148,7 @@ plt.xlabel('Time')
 plt.ylabel('S')
 
 #Plot infectious numbers
-plt.subplot(1, 3, 2)
+plt.subplot(2, 2, 2)
 for n in range(0, numSims):
     plt.plot(np.linspace(0, maxT, maxT + 1), listofIs[n], 'r-')
 #Calculate and plot mean infectious numbers
@@ -160,7 +161,7 @@ plt.xlabel('Time')
 plt.ylabel('I')
 
 #Plot recovered numbers
-plt.subplot(1, 3, 3)
+plt.subplot(2, 2, 3)
 for n in range(0, numSims):
     plt.plot(np.linspace(0, maxT, maxT + 1), listofRs[n], 'g-')
 #Calculate and plot mean recovered numbers
@@ -171,5 +172,11 @@ plt.plot(np.linspace(0, maxT, maxT + 1), meanR, 'k-', linewidth = 2.5)
 plt.ylim([0, N])
 plt.xlabel('Time')
 plt.ylabel('R')
+
+#Plot positions of individuals
+plt.subplot(2, 2, 4)
+plt.plot([population[i].x for i in range(0, N)], [population[i].y for i in range(0, N)], 'k.')
+plt.xlabel('x')
+plt.ylabel('y')
 
 plt.show()

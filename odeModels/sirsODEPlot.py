@@ -2,92 +2,65 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 
-#Set parameters for two different models and define the corresponding functions (where X[0] = S and X[1] = I)
+#Set parameters
 N = 1000
-#Plot 1
-beta1 = 2
-gamma1 = 1
-delta1 = 0.5
-def dX1_dt(X, t):
-    return [delta1*N - delta1*X[0] - delta1*X[1] - beta1*X[1]*X[0]/N, beta1*X[1]*X[0]/N - gamma1*X[1]]
-#Plot 2
-beta2 = 0.5
-gamma2 = 1
-delta2 = 0.5
-def dX2_dt(X, t):
-    return [delta2*N - delta2*X[0] - delta2*X[1] - beta2*X[1]*X[0]/N, beta2*X[1]*X[0]/N - gamma2*X[1]]
-
-#Solve the systems numerically for specified initial conditions
+beta = 0.5
+gamma = 1
+delta = 0.5
+S0 = 500
+I0 = 500
+#Range of time values for which solution will be calculated
 plotT = np.linspace(0, 40, 82)
-#Plot 1
-X01 = [800, 200]
-sol1 = odeint(dX1_dt, X01, plotT)
-S1 = sol1[:,0]
-I1 = sol1[:,1]
-#Plot 2
-X02 = [500, 500]
-sol2 = odeint(dX2_dt, X02, plotT)
-S2 = sol2[:,0]
-I2 = sol2[:,1]
 
-#Create phase portraits for systems
+#Set up system of equations and initial conditions (here, X = [S, I])
+def dX_dt(X, t):
+    return [delta*N - delta*X[0] - delta*X[1] - beta*X[1]*X[0]/N,
+            beta*X[1]*X[0]/N - gamma*X[1]]
+
+X0 = [S0, I0]
+
+#Solve the system numerically
+sol = odeint(dX_dt, X0, plotT)
+S = sol[:,0]
+I = sol[:,1]
+R = N - S - I
+
+#Create phase portrait
 #Create grid
-plotSArray = np.linspace(0, N, 21)
-plotIArray = np.linspace(0, N, 21)
+plotSArray = np.linspace(0, N, 16)
+plotIArray = np.linspace(0, N, 16)
 plotS, plotI = np.meshgrid(plotSArray, plotIArray)
-#Initialise arrays for horizontal and vertical components
-#Plot 1
-u1 = np.zeros(plotS.shape)
-v1 = np.zeros(plotI.shape)
-#Plot 2
-u2 = np.zeros(plotS.shape)
-v2 = np.zeros(plotI.shape)
+#Initialise 2D arrays for horizontal and vertical components
+u = np.zeros(plotS.shape)
+v = np.zeros(plotI.shape)
 #Populate arrays
 for i in range(0, len(plotSArray)):
     for j in range(0, len(plotIArray)):
         #Get current coordinate
         X = [plotS[i, j], plotI[i, j]]
-        #Retrieve components (using t = 0 since system is autonomous)
-        #Plot 1
-        u1[i, j] = dX1_dt(X, 0)[0]
-        v1[i, j] = dX1_dt(X, 0)[1]
-        #Plot 2
-        u2[i, j] = dX2_dt(X, 0)[0]
-        v2[i, j] = dX2_dt(X, 0)[1]
+        #Calculate vector components (using t = 0 since system is autonomous)
+        u[i, j] = dX_dt(X, 0)[0]
+        v[i, j] = dX_dt(X, 0)[1]
 
 
 #Plot results
 plt.rcParams.update({'font.size': 14})
 plt.figure()
-plt.suptitle('Phase portraits and number of infectious, susceptible and recovered individuals over time in SIRS ODE model')
-#Plot phase portrait for system 1
-plt.subplot(2,2,1)
-plt.quiver(plotS, plotI, u1, v1)
-plt.plot(S1, I1, 'k-')
-plt.plot(np.linspace(1, 1000, 11), 1000- np.linspace(1, 1000, 11), 'r-')
-plt.xlabel('S')
-plt.ylabel('I')
-#Plot numerical solution of system 1
-plt.subplot(2,2,2)
-plt.plot(plotT, I1, 'r-', plotT, S1, 'b-', plotT, N - S1 - I1, 'g-')
-plt.xlabel('Time')
-plt.ylabel('Number of individuals')
-plt.legend(['Infectious', 'Susceptible', 'Recovered'])
-plt.text(15, 20, r'$\beta = $' + str(beta1) + ', $\gamma = $' + str(gamma1) + ', $\delta = $' + str(delta1) + '$, S_{0} = $' + str(X01[0]) + ', $I_{0} = $' + str(X01[1]))
 
-#Plot phase portrait for system 2
-plt.subplot(2,2,3)
-plt.quiver(plotS, plotI, u2, v2)
-plt.plot(S2, I2, 'k-')
-plt.plot(np.linspace(1, 1000, 11), 1000- np.linspace(1, 1000, 11), 'r-')
+#Plot phase portrait
+plt.subplot(1,2,1)
+plt.quiver(plotS, plotI, u, v)
+plt.plot(S, I, 'k-')
+plt.plot(np.linspace(0, N, 11), N- np.linspace(0, N, 11), 'r-')
 plt.xlabel('S')
 plt.ylabel('I')
-#Plot numerical solution of system 2
-plt.subplot(2,2,4)
-plt.plot(plotT, I2, 'r-', plotT, S2, 'b-', plotT, N - S2 - I2, 'g-')
+#Plot numerical solution
+plt.subplot(1,2,2)
+plt.plot(plotT, I, 'r-', plotT, S, 'b-', plotT, R, 'g-')
 plt.xlabel('Time')
 plt.ylabel('Number of individuals')
+plt.ylim([0, N])
 plt.legend(['Infectious', 'Susceptible', 'Recovered'])
-plt.text(15, 200, r'$\beta = $' + str(beta2) + ', $\gamma = $' + str(gamma2) + ', $\delta = $' + str(delta2) + '$, S_{0} = $' + str(X02[0]) + ', $I_{0} = $' + str(X02[1]))
+plt.text(10, 550, r'$\beta = $' + str(beta) + ', $\gamma = $' + str(gamma) + ', $\delta = $' + str(delta) + '$, S_{0} = $' + str(S0) + ', $I_{0} = $' + str(I0))
 
 plt.show()
