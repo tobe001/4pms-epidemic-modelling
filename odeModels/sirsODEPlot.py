@@ -19,7 +19,7 @@ def dX_dt(X, t):
 
 X0 = [S0, I0]
 
-#Solve the system numerically
+#Solve the system numerically for specified initial conditions
 sol = odeint(dX_dt, X0, plotT)
 S = sol[:,0]
 I = sol[:,1]

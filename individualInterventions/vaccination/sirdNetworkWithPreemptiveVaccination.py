@@ -264,7 +264,7 @@ for v in vs:
         #Generate random subset of individuals that can be vaccinated
         potentialVaccineTakers = random.sample(range(0, N), subsetSize)
         #Sort individuals in subset by chosen measure of importance
-        sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, potentialVaccineTakers, "susceptibility")
+        sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, potentialVaccineTakers, "random")
 
         #Vaccinate v most important susceptible individuals from the subset of potential vaccine takers
         vaccinesAvailable = v

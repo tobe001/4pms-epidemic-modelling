@@ -16,14 +16,14 @@ tauB = 2/3
 maxT = 80
 vs = np.linspace(0, 500, 51)
 
-#Define functions to calculate number of vaccines to be intended for groups A and B as a function of the total number available and the number of susceptibles in each compartment
+#Define functions to calculate number of vaccines to be intended for groups A and B as a function of the total number available and the number of susceptibles in each group
 def fA(currentlyAvailable, SA, SB):
     return (SA / (SA + SB)) * currentlyAvailable
 
 def fB(currentlyAvailable, SA, SB):
     return (SB / (SA + SB)) * currentlyAvailable
 
-#Define functions to calculate number of vaccines provided to each group from the number intended for each one as a function of the total number available and the number of susceptibles in each group
+#Define functions to calculate number of vaccines provided to each group from the number originally intended for each one as a function of the total number available and the number of susceptibles in each group
 def numVaccinesAA(currentlyAvailable, SA, SB):
     return np.min([fA(currentlyAvailable, SA, SB), SA])
 

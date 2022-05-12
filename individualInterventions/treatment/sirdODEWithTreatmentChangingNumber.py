@@ -25,7 +25,7 @@ def fA(currentlyAvailable, IA, IB):
 def fB(currentlyAvailable, IA, IB):
     return (IB / (IA + IB)) * currentlyAvailable
 
-#Define functions to calculate number of treatments provided to each group from the number intended for each one as a function of the total number available and the number of infectious individuals in each group
+#Define functions to calculate number of treatments provided to each group from the number originally intended for each one as a function of the total number available and the number of infectious individuals in each group
 def numTreatmentsAA(currentlyAvailable, IA, IB):
     return np.min([fA(currentlyAvailable, IA, IB), IA])
 
