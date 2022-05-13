@@ -44,7 +44,7 @@ for n in ns:
     D0 = 0
     X0 = [SA0, SB0, IA0, IB0, R0, D0]
 
-    #Solve equations over specific time range and with specified initial conditions
+    #Solve equations over specified time range and with specified initial conditions
     plotT = range(0, maxT + 1)
     sol = odeint(dX_dt, X0, plotT)
     S = sol[:,0] + sol[:,1]
@@ -52,12 +52,13 @@ for n in ns:
     R = sol[:,4]
     D = sol[:,5]
 
-    #Check that final number of deceased appears to be converging. If it is not, we should simulate for longer.
+    #Check that final number of deceased individuals appears to be converging. If it is not, we should simulate for longer.
     if (abs(D[maxT] - D[maxT - 1]) > 0.1):
         print("WARNING: Possible non-convergence of fatality numbers when n = " + str(n) + ". Consider increasing maxT.")
 
     #Add final fatlity numbers to list
     finalDs.append(D[maxT])
+    print("Completed simulations for n = " + str(n))
 
 #Plot results
 plt.rcParams.update({'font.size': 14})

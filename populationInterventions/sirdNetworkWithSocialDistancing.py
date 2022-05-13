@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Create class for individuals to store their list of neighbours, current state and parameters
+#Create class for individuals to store their list of neighbours, current state and susceptibility and infectiousness
 class Individual:
 
     def __init__(self, neighbours, state, group, susceptibility, infectiousness):
@@ -11,7 +11,7 @@ class Individual:
         self.susceptibility = susceptibility
         self.infectiousness = infectiousness
 
-#Define a function to form a network from a given list of individuals by one of several methods
+#Define a function to form a network from a given list of individuals by one of several methods by adding to each individual's list of neighbours (which should iniitally be empty)
 def formNetwork(population, method):
 
     #Form a ring lattice
@@ -156,15 +156,15 @@ for k in range(0, len(ps)):
         D = np.zeros(maxT + 1)
         D[0] = 0
 
-        #Initialise individual states
+        #Initialise states of individuals
         #Make first S0 individuals suscpetible
-        for i in range(0, N-I0-R0):
+        for i in range(0, N - I0 - R0):
             population[i].state = "S"
         #Make next I0 individuals infectious
-        for i in range(N-I0-R0, N-R0):
+        for i in range(N - I0 - R0, N - R0):
             population[i].state = "I"
         #Make next R0 individuals recovered
-        for i in range(N-R0, N):
+        for i in range(N - R0, N):
             population[i].state = "R"
     
         #Run simulation
@@ -184,9 +184,9 @@ for k in range(0, len(ps)):
                         #If neighbour is infectious, infect current individual with probability current p * current individual's suceptibility * neighbour's infectiousness
                         if (currentNeighbour.state == "I"):
                             rand = np.random.uniform(0, 1)
-                            if (rand <= ps[k]*currentIndividual.susceptibility*currentNeighbour.infectiousness):
+                            if (rand <= ps[k] * currentIndividual.susceptibility * currentNeighbour.infectiousness):
                                 infected = True
-                                #If current individual is infected by one neighbour, no need to check if they are infected by any others
+                                #If current individual is infected by one neighbour, there is no need to check if they are infected by any others
                                 break
                     if infected:
                         nextStates[i] = "I"
