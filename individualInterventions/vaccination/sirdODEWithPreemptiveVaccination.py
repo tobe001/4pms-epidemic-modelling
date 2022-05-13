@@ -45,8 +45,10 @@ for v in vs:
     D0 = 0
     
     #Specify number of vaccines to be given to each group
-    vaccinesToA = np.min([v/2, SA0])
-    vaccinesToB = np.min([v/2, SB0])
+    intendedForA = v/2
+    intendedForB = v/2
+    vaccinesToA = np.min([intendedForA, SA0])
+    vaccinesToB = np.min([intendedForB, SB0])
 
     #Adjust initial conditions appropriately
     SA0 = SA0 - vaccinesToA
@@ -62,7 +64,7 @@ for v in vs:
     R = sol[:,4]
     D = sol[:,5]
 
-    #Check that final number of deceased appears to be converging. If it is not, we should simulate for longer.
+    #Check that final number of deceased individuals appears to be converging. If it is not, we should simulate for longer.
     if (abs(D[maxT] - D[maxT - 1]) > 0.1):
         print("WARNING: Possible non-convergence of fatality numbers when v = " + str(v) + ". Consider increasing maxT.")
 

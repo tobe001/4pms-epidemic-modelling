@@ -12,7 +12,7 @@ class Individual:
         self.susceptibility = susceptibility
         self.infectiousness = infectiousness
 
-#Define a function to form a network from a given list of individuals using one of several methods
+#Define a function to form a network from a given list of individuals using one of several methods by adding to each individual's list of neighbours (which should initially be empty)
 def formNetwork(population, method):
 
     #Form a ring lattice
@@ -111,7 +111,7 @@ def formNetwork(population, method):
     
     return population  
 
-#Define a function to return a list of inidces of individuals in a population from a given subset sorted by one of several measures
+#Define a function to return a list of inidces of individuals in the population from a given subset sorted by one of several measures
 def sortedSubsetofPopulation(population, subset, measure):
 
     if (len(subset) > 0):
@@ -252,13 +252,13 @@ for v in vs:
 
         #Initialise individual states
         #Make first S0 individuals susceptible
-        for i in range(0, N-I0-R0):
+        for i in range(0, N - I0 - R0):
             population[i].state = "S"
         #Make next I0 individuals infectious
-        for i in range(N-I0-R0, N-R0):
+        for i in range(N - I0 - R0, N - R0):
             population[i].state = "I"
         #Make next R0 individuals recovered
-        for i in range(N-R0, N):
+        for i in range(N - R0, N):
             population[i].state = "R"
 
         #Generate random subset of individuals that can be vaccinated
