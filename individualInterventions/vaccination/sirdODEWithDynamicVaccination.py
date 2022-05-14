@@ -73,7 +73,7 @@ for v in vs:
     R = sol[:,4]
     D = sol[:,5]
 
-    #Check that final number of deceased appears to be converging. If it is not, we should simulate for longer.
+    #Check that final number of deceased individuals appears to be converging. If it is not, we should simulate for longer.
     if (abs(D[maxT] - D[maxT - 1]) > 0.1):
         print("WARNING: Possible non-convergence of fatality numbers when v = " + str(v) + ". Consider increasing maxT.")
 

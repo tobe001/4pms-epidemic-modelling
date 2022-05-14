@@ -12,7 +12,7 @@ class Individual:
         self.susceptibility = susceptibility
         self.infectiousness = infectiousness
 
-#Define a function to form a network from a given list of individuals using one of several methods
+#Define a function to form a network from a given list of individuals using one of several methods by populating each individual's list of nieghbours (which should initially be empty)
 def formNetwork(population, method):
 
     #Form a ring lattice
@@ -251,13 +251,13 @@ for v in vs:
 
         #Initialise individual states
         #Make first S0 individuals susceptible
-        for i in range(0, N-I0-R0):
+        for i in range(0, N - I0 - R0):
             population[i].state = "S"
         #Make next I0 individuals infectious
-        for i in range(N-I0-R0, N-R0):
+        for i in range(N - I0 - R0, N - R0):
             population[i].state = "I"
         #Make next R0 individuals recovered
-        for i in range(N-R0, N):
+        for i in range(N - R0, N):
             population[i].state = "R"
 
         #Run simulation
@@ -318,10 +318,10 @@ for v in vs:
             #Sort individuals in subset that are susceptible by chosen measure of importance
             sortedPotentialVaccineTakers = sortedSubsetofPopulation(population, [label for label in potentialVaccineTakers if population[label].state == "S"], "group")
 
-            #Vaccinate v most important susceptible individuals from the subset of potential vaccine takers
+            #Vaccinate v most important susceptible individuals from the sorted subset of potential vaccine takers
             vaccinesAvailable = v
             index = 0
-            #While we have not yet used all the vaccines and we have not yet considered all individuals in the subset of potential takers:
+            #While we have not yet used all the vaccines and we have not yet considered all individuals in the sorted subset of potential takers:
             while ((vaccinesAvailable > 0) and (index < len(sortedPotentialVaccineTakers))):
                 #Consider next individual in the sorted subset
                 currentIndividual = population[sortedPotentialVaccineTakers[index]]
