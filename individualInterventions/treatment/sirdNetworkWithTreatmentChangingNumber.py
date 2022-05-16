@@ -12,7 +12,7 @@ class Individual:
         self.susceptibility = susceptibility
         self.infectiousness = infectiousness
 
-#Define a function to form a network from a given list of individuals using one of several methods
+#Define a function to form a network from a given list of individuals using one of several methods by populating each individual's list of neighbours (which should initially be empty)
 def formNetwork(population, method):
 
     #Form a ring lattice
@@ -200,7 +200,7 @@ def sortedSubsetofPopulation(population, subset, measure):
     
     return sortedSubset
 
-#Define parameters
+#Set parameters
 N = 1000
 I0 = 1
 R0 = 0
@@ -253,13 +253,13 @@ for treatmentsAvailable in treatmentsAvailableVals:
 
         #Initialise individual states
         #Make first S0 individuals susceptible
-        for i in range(0, N-I0-R0):
+        for i in range(0, N - I0 - R0):
             population[i].state = "S"
         #Make next I0 individuals infectious
-        for i in range(N-I0-R0, N-R0):
+        for i in range(N - I0 - R0, N - R0):
             population[i].state = "I"
         #Make next R0 individuals recovered
-        for i in range(N-R0, N):
+        for i in range(N - R0, N):
             population[i].state = "R"
 
         #Initialise number of treatments
@@ -334,10 +334,10 @@ for treatmentsAvailable in treatmentsAvailableVals:
 
             #Generate random subset of individuals that can be treated
             potentialTreatmentTakers = random.sample(range(0, N), subsetSize)
-            #Sort individuals in subset by chosen measure of importance
+            #Sort individuals in subset that are infectious by chosen measure of importance
             sortedPotentialTreatmentTakers = sortedSubsetofPopulation(population, [label for label in potentialTreatmentTakers if population[label].state == "I"], "random")
 
-            #Treat as many infectious individuals as possible from the subset of potential vaccine takers
+            #Treat as many infectious individuals as possible from the subset of potential treatment takers
             index = 0
             #While we have not yet assigned all the treatments and we have not yet considered all individuals in the subset of potential takers:
             while ((numTreatments > 0) and (index < len(sortedPotentialTreatmentTakers))):
